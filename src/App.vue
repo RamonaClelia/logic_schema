@@ -1,22 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <SelectionGrid msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import SVG from "svg.js";
+import SelectionGrid from './components/SelectionGrid.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
-  }
+    SelectionGrid
+  },
+   watch: {},
+   mounted() {},
+    methods: {}
 }
 </script>
 
-<style>
+<style scoped>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
