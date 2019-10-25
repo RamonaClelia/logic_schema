@@ -1,17 +1,25 @@
 <template>
   <div id="app">
-    <SelectionGrid msg="Welcome to Your Vue.js App"/>
+    <SelectionGrid2 msg="Welcome to Your Vue.js App"/>
+    <!-- <SelectionGrid msg="Welcome to Your Vue.js App"/> -->
+     <!-- <Draggable msg="Welcome to Your Vue.js App"/> -->
   </div>
 </template>
 
 <script>
 import SVG from "svg.js";
+import '@svgdotjs/svg.draggable.js'
+
+import SelectionGrid2 from './components/SelectionGrid2.vue'
 import SelectionGrid from './components/SelectionGrid.vue'
+import Draggable from './components/Draggable.vue'
 
 export default {
   name: 'app',
   components: {
-    SelectionGrid
+    SelectionGrid2,
+    SelectionGrid,
+    Draggable
   },
    watch: {},
    mounted() {},
@@ -24,8 +32,7 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
