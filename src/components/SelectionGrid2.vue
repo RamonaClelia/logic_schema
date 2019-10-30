@@ -1,13 +1,14 @@
 <template>
   <div class="SelectionGridContainer">
-    {{q_selected}}..{{cell_selected}}
+    <!-- debug section -->
+    <!-- {{q_selected}}..{{cell_selected}}
     <br />
     {{qMoveFrom}}..{{qMoveTo}}
-    <br />
+    <br /> 
     <div
       v-for="(link,index) in map_links"
       :key="'link_'+index"
-    >{{link.from}} - {{link.to}}..{{link.x1}},{{link.y1}},{{link.x2}},{{link.y2}}</div>
+    >{{link.from}} - {{link.to}}..{{link.x1}},{{link.y1}},{{link.x2}},{{link.y2}}..{{link.lbl}}</div>-->
     <!-- questions container -->
     <svg :width="QchartWidth" :height="QchartHeight" id="QuestionsContainer">
       <g
@@ -31,53 +32,10 @@
       </g>
     </svg>
 
-    <!-- answers container -->
-    <svg :width="AchartWidth" :height="AchartHeight" id="AnswersContainer">
-      <g
-        v-for="acell in map_answers"
-        :key="acell.id"
-        @click="CellClick(acell.poz)"
-        @contextmenu="ContextMenuCell($event,acell.poz)"
-        v-bind:class="{ cellSelected: acell.poz==qMoveFrom||acell.poz==qMoveTo}"
-        class="rect_answers"
-      >
-        <rect
-          :x="acell.pozx*cell_width"
-          :y="acell.pozy*cell_height"
-          :width="cell_width"
-          :height="cell_height"
-          v-bind:class="{ CellBlocked: CellLocked(acell.poz)}"
-        />
-        <!-- <text :x="acell.pozx*cell_width+cell_width/2" :y="acell.pozy*cell_height+cell_height/2" alignment-baseline="middle" text-anchor="middle">{{acell.poz}}</text> -->
-        <title
-          v-for="(temp,index) in map_array.filter(item=>{return item.move==acell.poz})"
-          :key="temp.id+index"
-        >{{temp.hover_text}}</title>
-
-        <text
-          v-for="temp in map_array.filter(item=>{return item.move==acell.poz})"
-          :key="temp.id"
-          :x="acell.pozx*cell_width+cell_width/2"
-          :y="acell.pozy*cell_height+cell_height/2"
-          alignment-baseline="middle"
-          text-anchor="middle"
-        >{{temp.text}}</text>
-      </g>
-      <!-- links -->
-      <g
-        v-for="(link,index) in map_links"
-        :key="'link_'+index"
-        @contextmenu="ContextMenuPloly($event,link.from,link.to)"
-        class="poly_group"
-      >
-        <polyline :points="GetPoints('line',link.x1,link.y1,link.x2,link.y2)" class="poly_line" />
-        <polygon :points="GetPoints('arrow',link.x1,link.y1,link.x2,link.y2)" class="poly_arrow" />
-      </g>
-    </svg>
-
     <!-- conditions container -->
+    <div id="Conditions"  v-bind:style="{ width: QchartWidth+'px' }">
     <div
-      v-bind:style="{ width: CchartWidth+'px', height: CchartHeight + 'px' }"
+     
       id="ConditionsContainer"
     >
       <select class="DropDownCondition" id="DropDownCondition1" v-model="CD1">
@@ -110,23 +68,98 @@
     </div>
 
     <!-- temporary conditions display container -->
-    <div
+    <!-- <div
       id="TemporaryConditions"
       v-for="cond in tempCond"
       :key="cond.CD1+cond.CD2+cond.CD3+cond.id"
     >
-      {{cond.CD1}} {{cond.CD2}} {{cond.CD3}}
-      <div>{{cond.Next}}</div>
+    {{cond.CD1}} {{cond.CD2}} {{cond.CD3}} {{cond.Next}}
+    
+    </div> -->
+<div
+      id="TemporaryConditions">
+      {{MakeMePretty(tempCond)}}
+      </div>
+
+
     </div>
 
+
     <!-- conditions display container -->
-    <div v-for="(condBlock,index1) in map_conditions" :key="index1" class="ConditionDiv">
+    <!-- <div v-for="(condBlock,index1) in map_conditions" :key="index1" class="ConditionDiv">
       C{{index1}}:
       <div
         v-for="(cond,index2) in condBlock"
         :key="index2"
       >{{cond.CD1}} {{cond.CD2}} {{cond.CD3}} {{cond.Next}}</div>
-    </div>
+    </div> -->
+
+    <!-- answers container -->
+    <svg :width="AchartWidth" :height="AchartHeight" id="AnswersContainer">
+      <g
+        v-for="acell in map_answers"
+        :key="acell.id"
+        @click="CellClick(acell.poz)"
+        @contextmenu="ContextMenuCell($event,acell.poz)"
+        
+        v-bind:class="{ cellSelected: acell.poz==qMoveFrom||acell.poz==qMoveTo}"
+        class="rect_answers"
+      >
+      <!--  -->
+        <rect
+          :x="acell.pozx*cell_width"
+          :y="acell.pozy*cell_height"
+          :width="cell_width"
+          :height="cell_height"
+          v-bind:class="{ CellBlocked: CellLocked(acell.poz)}"
+        />
+        <!-- <text :x="acell.pozx*cell_width+cell_width/2" :y="acell.pozy*cell_height+cell_height/2" alignment-baseline="middle" text-anchor="middle">{{acell.poz}}</text> -->
+        <title
+          v-for="(temp,index) in map_array.filter(item=>{return item.move==acell.poz})"
+          :key="temp.id+index"
+        >{{temp.hover_text}}</title>
+
+        <text
+          v-for="temp in map_array.filter(item=>{return item.move==acell.poz})"
+          :key="temp.id"
+          :x="acell.pozx*cell_width+cell_width/2"
+          :y="acell.pozy*cell_height+cell_height/2"
+          alignment-baseline="middle"
+          text-anchor="middle"
+        >{{temp.text}}</text>
+      </g>
+      <!-- links -->
+      <g
+        v-for="(link,index) in map_links"
+        :key="'link_'+index"
+        @contextmenu="ContextMenuArrow($event,link.from,link.to)" 
+        v-bind:class="{ poly_true: link.lbl=='TRUE',poly_false: link.lbl=='FALSE', poly_none: link.lbl=='', menued_link: checkIfMenued(link.from,link.to)}"
+        class="poly_group"
+      >
+        <polyline :points="GetPoints('line',link.x1,link.y1,link.x2,link.y2)" class="poly_line" />
+        <polygon :points="GetPoints('arrow',link.x1,link.y1,link.x2,link.y2)" class="poly_arrow" />
+      </g>
+      <!-- menu group -->
+      <g id="ContextMenuCell" v-if="showMenu">
+        <rect
+          :x="menux"
+          :y="menuy"
+          :width="menu_width"
+          :height="menu_cell_height*menu_array.length"
+        />
+        <text  v-for="(item,index) in menu_array"
+          :key="item" 
+          :x="menux+5" 
+          :y="menuy+menu_cell_height*(index+1)-5"     
+          @click="ContextOprionsArrow(index+1)"
+          class="menuText"
+          >{{item}}
+        </text>
+              
+      </g>
+    </svg>
+  <!-- Generate Output-->
+  <div class="CondButton" @click="GenerareOutput()" >Generate</div>
   </div>
 </template>
 
@@ -141,22 +174,20 @@ export default {
       QchartWidth: 0,
       AchartHeight: 0,
       AchartWidth: 0,
-      CchartHeight: 50,
-      CchartWidth: 500,
-      questions: ["START", "Q0", "Q1", "Q2", "Q3", "Q4", "Q5", "Q99", "STOP"],
-      q_width: 75, //question width
+      questions: ["START", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "STOP"],
+      q_width: 50, //question width
       q_height: 50, //question height
-      q_cols: 8, // number of questions per row
+      q_cols: 10, // number of questions per row
       q_rows: -1, //determined based on cols and count
       map_array: [],
       map_answers: [],
       map_conditions: [],
-      operators: ["=", "<>", "*"],
-      answers: ["ans1", "ans2", "ans3"],
+      operators: ["=", "<>", "*","<",">"],
+      answers: ["ans1", "ans2", "ans3","40"],
       cell_width: 50, //question width
       cell_height: 50, //question height
       a_cols: 15, //answers_cols
-      a_rows: 10, //answers_rows
+      a_rows: 20, //answers_rows
       q_selected: -1,
       cell_selected: -1,
       nextqx: 0,
@@ -171,7 +202,15 @@ export default {
       map_links: [],
       arrow_height: 10,
       arrow_base: 20,
-      lock_cells: []
+      lock_cells: [],
+      menuArrowFrom:-1,
+      menuArrowTo:-1,
+      showMenu:false,
+      menux:0,
+      menuy:0,
+      menu_width:75,
+      menu_cell_height:25,
+      menu_array:["Delete","True","False","None","Close"]
     };
   },
   created() {
@@ -179,7 +218,7 @@ export default {
     var vueObj = this;
 
     $(window).resize(function() {
-      console.log("resize");
+      // console.log("resize");
     });
     // tbd
   },
@@ -241,6 +280,8 @@ export default {
       this.QchartHeight = this.q_rows * this.q_height;
     },
     BlockClick(qpoz) {
+      this.showMenu=false;
+      this.qMoveFrom=-1;
       // console.log('BlockClick for ',qpoz);
       if (!this.map_array[qpoz].used) {
         this.q_selected = qpoz;
@@ -249,6 +290,7 @@ export default {
       }
     },
     CellClick(poz) {
+      this.showMenu=false;
       //check if the cell is locked
       var isLocked = false;
       var vueObj = this;
@@ -264,7 +306,7 @@ export default {
       });
       if (isLocked) {
         this.q_selected = -1;
-        console.log("just locked");
+        // console.log("just locked");
         return;
       }
       // console.log('selected cell');
@@ -298,11 +340,11 @@ export default {
           var gasit = false;
           this.map_links.forEach(function(link, index) {
             if (link.from == vueObj.qMoveFrom) {
-              vueObj.UpdateLinks(vueObj.qMoveTo, link.to, index);
+              vueObj.UpdateLinks(vueObj.qMoveTo, link.to, index,link.lbl);
               gasit = true;
             }
             if (link.to == vueObj.qMoveFrom) {
-              vueObj.UpdateLinks(link.from, vueObj.qMoveTo, index);
+              vueObj.UpdateLinks(link.from, vueObj.qMoveTo, index,link.lbl);
               gasit = true;
             }
           });
@@ -321,15 +363,16 @@ export default {
       }
       // console.log('create link in CheckAndMove');
       if (this.CheckIfLinkPossible(this.qMoveFrom, poz)) {
-        this.CreateLink(this.qMoveFrom, poz);
+        // console.log('create new link');
+        this.CreateLink(this.qMoveFrom, poz,"");
       } else {
-        console.log("link not possible");
+        // console.log("link not possible");
       }
       this.qMoveFrom = -1;
     },
-    UpdateLinks(newstart, newend, index) {
+    UpdateLinks(newstart, newend, index,label) {
       this.map_links.splice(index, 1);
-      this.CreateLink(newstart, newend);
+      this.CreateLink(newstart, newend,label);
     },
     CheckIfLinkPossible(cell1, cell2) {
       if (cell1 == -1 || cell2 == -1) return false;
@@ -345,7 +388,7 @@ export default {
       });
       return possible;
     },
-    CreateLink(start, end) {
+    CreateLink(start, end,label) {
       // console.log('start, end: ',start, end);
       // console.log(this.a_cols,this.a_rows);
       this.map_links.push({
@@ -354,7 +397,8 @@ export default {
         x1: this.UpdatePoints(start, end, "startx"),
         y1: this.UpdatePoints(start, end, "starty"),
         x2: this.UpdatePoints(start, end, "endx"),
-        y2: this.UpdatePoints(start, end, "endy")
+        y2: this.UpdatePoints(start, end, "endy"),
+        lbl: label
       });
     },
     UpdatePoints(start, end, type) {
@@ -452,13 +496,13 @@ export default {
       // console.log(cond.length);
       cond.forEach(function(condition, index) {
         cond_pretty =
-          cond_pretty +
+          cond_pretty + "("+
           condition.CD1 +
           " " +
           condition.CD2 +
           " " +
           condition.CD3 +
-          " " +
+          ") " +
           condition.Next +
           " ";
       });
@@ -468,6 +512,7 @@ export default {
       return cond_pretty;
     },
     ContextMenuCell(e, cell) {
+      this.showMenu=false;
       // console.log('context for ', cell);
 
       //delete arrows
@@ -492,16 +537,6 @@ export default {
       this.LockAllCells();
       e.preventDefault();
     },
-    ContextMenuPloly(e, from, to) {
-      var vueObj = this;
-      this.map_links.forEach(function(link, index) {
-        if (link.from == from && link.to == to) {
-          vueObj.map_links.splice(index, 1);
-        }
-      });
-      e.preventDefault();
-    },
-
     GetPoints(type, x1, y1, x2, y2) {
       // console.log(type);
       // console.log('Points:', x1,y1,x2,y2);
@@ -708,7 +743,7 @@ export default {
       return gasit;
     },
     LockAllCells() {
-      console.log("lock");
+      // console.log("lock");
       this.lock_cells = [];
       var vueObj = this;
       this.map_array.forEach(function(question, index) {
@@ -766,97 +801,208 @@ export default {
             vueObj.lock_cells.push(question.move + vueObj.a_cols + 1);
         }
       });
+    },
+    ContextMenuArrow(e,from, to){
+      this.showMenu=true;
+      this.menuArrowFrom=from;
+      this.menuArrowTo=to;
+
+      this.menux=this.cell_width*(this.map_answers[from].pozx+this.map_answers[to].pozx)/2+this.cell_width/2-this.menu_width/2;
+
+      if (this.menux<=0) this.menux=this.cell_width*2/3;
+      if (this.menux+this.menu_width>=this.cell_width*(this.a_cols-1)) this.menux=this.cell_width*(this.a_cols)-this.menu_width-this.cell_width*2/3;
+
+      
+
+      this.menuy=this.cell_height*(this.map_answers[from].pozy+this.map_answers[to].pozy)/2+this.cell_height/2-this.menu_array.length*this.menu_cell_height/2;
+      if (this.menuy<=0) this.menuy=this.cell_height*2/3;
+      if (this.menuy+this.menu_array.length*this.menu_cell_height>=this.cell_height*(this.a_rows-1)) this.menuy=this.cell_height*(this.a_rows)-this.menu_array.length*this.menu_cell_height-this.cell_height*2/3;
+      
+      e.preventDefault();
+
+    },
+    ContextOprionsArrow(type){
+    var vueObj = this;
+      this.map_links.forEach(function(link, index) {
+        if (link.from == vueObj.menuArrowFrom && link.to == vueObj.menuArrowTo) {
+          if (type==1) vueObj.map_links.splice(index, 1);
+          if (type==2) vueObj.map_links[index].lbl="TRUE";
+          if (type==3) vueObj.map_links[index].lbl="FALSE";         
+          if (type==4) vueObj.map_links[index].lbl="";
+          // type 5 == close => do nothing
+        }
+      });
+      this.showMenu=false;
+    },
+    checkIfMenued(from, to){
+      if (this.menuArrowFrom==from && this.menuArrowTo==to && this.showMenu) return true;
+      return false
+    },
+    GenerareOutput(){
+      console.log("-------------------------------------------------------------------");
+      console.log('map_array\n');
+      console.log(JSON.stringify(this.map_array));
+      console.log("-------------------------------------------------------------------");
+      console.log('map_links\n');
+      console.log(JSON.stringify(this.map_links));
+      console.log("-------------------------------------------------------------------");
+      console.log('Output\n');
+      output="";
+      var output=output+"Question||Position||Condition\n";
+       this.map_array.forEach(function(question, index) {
+        output=output+question.text+"||"+question.move+"||"+question.hover_text+";\n";
+      });     
+      var output=output+"LinkFrom||LinkTo||LinkLabel\n";
+       this.map_links.forEach(function(link, index) {
+        output=output+link.from+"||"+link.to+"||"+link.lbl+";\n";
+      });  
+    console.log(output);
     }
   }
 };
 </script>
 <style>
-#QuestionsContainer,
+
+/* menu container */
+#ContextMenuCell{
+  fill:white;
+  stroke: black;
+}
+.menuText{
+  fill:black;
+  stroke-width: 0;
+}
+.menuText:hover{
+  fill:#3963ff;
+  stroke-width: 0;
+  font-weight: bold;
+}
+/* Arrows */
+.poly_line {
+  stroke-width: 3;
+  fill: none;
+}
+.poly_arrow {
+  stroke-width: 3;
+  fill: transparent;
+}
+.poly_true{
+  stroke: #24b333;
+}
+.poly_false{
+  stroke: #b32a24;
+}
+.poly_none{
+  stroke: black;
+}
+
+.menued_link, .poly_group:hover * {
+  stroke-width: 5;
+  stroke: #3963ff !important;
+}
+
+/* Answer container */
+
 #AnswersContainer {
   border: 1px solid;
   display: flex;
-}
-#ConditionsContainer {
-  border: 1px solid darkslategray;
-}
-.rect_question {
-  fill: floralwhite;
-  stroke-width: 1;
-  stroke: #b3b3b3;
-  cursor: pointer;
+  border-radius: 5px;
 }
 
-.text_question {
-  fill: black;
-  /* stroke: black ; */
-  cursor: pointer;
-  font-weight: bold;
-  stroke-width: 0;
-  font-size: small;
-}
 .rect_answers {
-  fill: #e9f5f7;
+  fill: #ddf2f5;
   stroke-width: 1;
   stroke: #b3b3b3;
   cursor: pointer;
 }
 .CellBlocked {
-  fill: #d0dcde;
+  fill: #b6dade;
   cursor: default;
 }
-.qSelected {
-  fill: darkcyan;
-}
-.qUsed {
-  fill: #b3b3b3;
-  stroke-width: 1;
-  stroke: #b3b3b3;
-  cursor: no-drop;
-}
+
 .cellSelected {
-  fill: darkcyan;
+  fill: #5ca2a9;
 }
 .cellSelected > .CellBlocked {
-  fill: darkcyan;
+  fill: #5ca2a9;
   cursor: default;
 }
-.arrow_triangle {
+.rect_answers > text{
+  fill: black;
+  stroke: none;
+  font-weight: bold;
+  stroke-width: 0;
+  font-size: small;
+}
+/* Questions container */
+#QuestionsContainer {
+  border: 1px solid;
+  display: flex;
+  border-radius: 5px;
+}
+.rect_question {
+  fill: #ddf2f5;
   stroke-width: 1;
-  stroke: black;
-}
-.arrow_body {
-  stroke-width: 3;
-  stroke: black;
-}
+  stroke: #777777;
+  cursor: pointer;
+} 
 
-.arrow:hover * {
-  stroke-width: 5;
-  stroke: darkred !important;
-  fill: darkred;
+.text_question {
+  fill: black;
+  cursor: pointer;
+  font-weight: bold;
+  stroke-width: 0;
+  font-size: small;
+}
+.qSelected {
+  fill: #5ca2a9;
+}
+.qUsed {
+  fill: #777777;
+  stroke-width: 1;
+  cursor: no-drop;
+}
+.qUsed > .text_question{
+  fill: #777777;
+  cursor: no-drop;
+}
+/* conditions container */
+#TemporaryConditions,#ConditionsContainer{
+  min-height: 25px;
+  display: flex;
+}
+#ConditionsContainer{
+  flex-flow: row;
+  height: 50%;
+  justify-content: space-evenly;
+  padding: 15px 0px;
+}
+#Conditions{
+  /* border:1px solid blue; */
+  display: flex; 
+  flex-flow: column;
+  min-height: 50px;
 }
 .CondButton {
-  background-color: antiquewhite;
-  border: 1px solid;
-  min-width: 100px;
+  border: 1px solid #789a9d;
+  min-width: 75px;
   display: inline-flex;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  border-radius: 5px;
+  background-image: linear-gradient(180deg, #7ab3bb,#b0e0e6, #ddf2f5, #ddf2f5,#b0e0e6,#7ab3bb );
+  padding: 0px 5px;
+   max-width: 200px;
 }
 .ConditionDiv {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   margin-top: 5px;
 }
-.poly_line {
-  stroke-width: 3;
-  stroke: black;
-  fill: none;
-}
-
-.poly_arrow {
-  stroke-width: 1;
-  fill: black;
-}
-.poly_group:hover * {
-  stroke-width: 5;
-  stroke: darkred !important;
+.DropDownCondition{
+  min-width: 15%;
+      border-radius: 5px;
 }
 </style>
