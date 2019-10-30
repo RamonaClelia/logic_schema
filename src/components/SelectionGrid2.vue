@@ -9,6 +9,7 @@
       v-for="(link,index) in map_links"
       :key="'link_'+index"
     >{{link.from}} - {{link.to}}..{{link.x1}},{{link.y1}},{{link.x2}},{{link.y2}}..{{link.lbl}}</div>-->
+     <!-- {{qMoveFrom}}..{{qMoveTo}} -->
     <!-- questions container -->
     <div>Questions, conditions and terminals:</div>
 
@@ -539,6 +540,9 @@ export default {
         }
       });
       this.LockAllCells();
+      this.qMoveFrom=-1;
+      this.qMoveTo=-1;
+
       e.preventDefault();
     },
     GetPoints(type, x1, y1, x2, y2) {
