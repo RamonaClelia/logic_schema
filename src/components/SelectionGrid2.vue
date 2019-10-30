@@ -10,6 +10,8 @@
       :key="'link_'+index"
     >{{link.from}} - {{link.to}}..{{link.x1}},{{link.y1}},{{link.x2}},{{link.y2}}..{{link.lbl}}</div>-->
     <!-- questions container -->
+    <div>Questions, conditions and terminals:</div>
+
     <svg :width="QchartWidth" :height="QchartHeight" id="QuestionsContainer">
       <g
         v-for="block in map_array"
@@ -33,6 +35,7 @@
     </svg>
 
     <!-- conditions container -->
+    <div>Conditions builder:</div>
     <div id="Conditions"  v-bind:style="{ width: QchartWidth+'px' }">
     <div
      
@@ -95,6 +98,7 @@
     </div> -->
 
     <!-- answers container -->
+    <div>Answer container:</div>
     <svg :width="AchartWidth" :height="AchartHeight" id="AnswersContainer">
       <g
         v-for="acell in map_answers"
