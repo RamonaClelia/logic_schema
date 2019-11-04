@@ -80,7 +80,7 @@
     {{cond.CD1}} {{cond.CD2}} {{cond.CD3}} {{cond.Next}}
     
     </div> -->
-<div
+      <div
       id="TemporaryConditions">
       {{MakeMePretty(tempCond)}}
       </div>
@@ -105,7 +105,7 @@
         v-for="acell in map_answers"
         :key="acell.id"
         @click="CellClick(acell.poz)"
-        @contextmenu="ContextMenuCell($event,acell.poz)"
+        @contextmenu="ContextMenuQuestionCell($event,acell.poz)"
         
         v-bind:class="{ cellSelected: acell.poz==qMoveFrom||acell.poz==qMoveTo}"
         class="rect_answers"
@@ -144,23 +144,48 @@
         <polyline :points="GetPoints('line',link.x1,link.y1,link.x2,link.y2)" class="poly_line" />
         <polygon :points="GetPoints('arrow',link.x1,link.y1,link.x2,link.y2)" class="poly_arrow" />
       </g>
-      <!-- menu group -->
-      <g id="ContextMenuCell" v-if="showMenu">
+      <!-- arrow menu group -->
+      <g id="ContextMenuArrowGroup" v-if="showArrowMenu">
         <rect
-          :x="menux"
-          :y="menuy"
-          :width="menu_width"
-          :height="menu_cell_height*menu_array.length"
+          :x="menuArrowX"
+          :y="menuArrowY"
+          :width="menu_arrow_width"
+          :height="menu_ArrowCell_height*menu_arrow_array.length"
         />
-        <text  v-for="(item,index) in menu_array"
+        <text  v-for="(item,index) in menu_arrow_array"
           :key="item" 
-          :x="menux+5" 
-          :y="menuy+menu_cell_height*(index+1)-5"     
-          @click="ContextOprionsArrow(index+1)"
+          :x="menuArrowX+5" 
+          :y="menuArrowY+menu_ArrowCell_height*(index+1)-5"     
+          @click="ContextOptionsArrow(index+1)"
           class="menuText"
           >{{item}}
-        </text>
-              
+        </text>            
+      </g>
+      <!-- question menu group -->
+      <g id="ContextMenuQuestionGroup" v-if="showQuestionMenu">
+        <rect
+          :x="menuQuestionX"
+          :y="menuQuestionY"
+          :width="menu_question_width"
+          :height="menu_QuestionCell_height*menu_question_array.length"
+        />
+        <text  v-for="(item,index) in menu_question_array"
+          :key="item" 
+          :x="menuQuestionX+5" 
+          :y="menuQuestionY+menu_QuestionCell_height*(index+1)-5"     
+          @click="ContextOptionsQuestion(index+1)"
+          class="menuText"
+          >{{item}}
+        </text>           
+
+        <!-- <text  v-for="(item,index) in menu_question_array"
+          :key="item" 
+          :x="menuQuestionX+5" 
+          :y="menuQuestionY+menu_QuestionCell_height*(index+1)-5"     
+          @click="ContextOptionsQuestion(index+1)"
+          class="menuText"
+          >{{item}}
+        </text>             -->
       </g>
     </svg>
   <!-- Generate Output-->
@@ -210,12 +235,19 @@ export default {
       lock_cells: [],
       menuArrowFrom:-1,
       menuArrowTo:-1,
-      showMenu:false,
-      menux:0,
-      menuy:0,
-      menu_width:75,
-      menu_cell_height:25,
-      menu_array:["Delete","True","False","None","Close"]
+      showArrowMenu:false,
+      menuArrowX:0,
+      menuArrowY:0,
+      menu_arrow_width:75,
+      menu_ArrowCell_height:25,
+      menu_arrow_array:["Delete","True","False","None","Close"],
+      showQuestionMenu:false,
+      menuQuestionX:0,
+      menuQuestionY:0,
+      menu_question_width:75,
+      menu_QuestionCell_height:25,
+      menu_question_array:["Delete","Close"],
+      ContextCellSelected:-1
     };
   },
   created() {
@@ -227,7 +259,13 @@ export default {
     });
     // tbd
   },
-  watch: {},
+  watch: {
+    showQuestionMenu(newVal){
+      if (!newVal){
+        this.ContextCellSelected=-1;
+      }
+    }
+  },
   methods: {
     Generate() {
       //add initial questions
@@ -285,7 +323,8 @@ export default {
       this.QchartHeight = this.q_rows * this.q_height;
     },
     BlockClick(qpoz) {
-      this.showMenu=false;
+      this.showArrowMenu=false;
+      this.showQuestionMenu=false;
       this.qMoveFrom=-1;
       // console.log('BlockClick for ',qpoz);
       if (!this.map_array[qpoz].used) {
@@ -295,7 +334,8 @@ export default {
       }
     },
     CellClick(poz) {
-      this.showMenu=false;
+      this.showArrowMenu=false;
+      this.showQuestionMenu=false;
       //check if the cell is locked
       var isLocked = false;
       var vueObj = this;
@@ -516,32 +556,59 @@ export default {
       // }
       return cond_pretty;
     },
-    ContextMenuCell(e, cell) {
-      this.showMenu=false;
-      // console.log('context for ', cell);
-
-      //delete arrows
+    ContextOptionsQuestion(type){
+          // console.log('ContextOptionsQuestion');
       var vueObj = this;
-      do {
-        var gasit = false;
-        this.map_links.forEach(function(link, index) {
-          if (link.from == cell || link.to == cell) {
-            vueObj.map_links.splice(index, 1);
-            gasit = true;
-          }
-        });
-      } while (gasit);
+      if (type==1){
+        //delete arrows
+          do {
+            var gasit = false;
+            this.map_links.forEach(function(link, index) {
+              if (link.from == vueObj.ContextCellSelected || link.to == vueObj.ContextCellSelected) {
+                vueObj.map_links.splice(index, 1);
+                gasit = true;
+              }
+            });
+          } while (gasit);
 
-      //delete cell
-      this.map_array.forEach(function(obj, index) {
-        if (obj.move == cell) {
-          vueObj.map_array[index].move = -1;
-          vueObj.map_array[index].used = false;
-        }
-      });
-      this.LockAllCells();
+          //delete cell
+          this.map_array.forEach(function(obj, index) {
+            if (obj.move == vueObj.ContextCellSelected) {
+              vueObj.map_array[index].move = -1;
+              vueObj.map_array[index].used = false;
+            }
+          });
+          this.LockAllCells();
+          this.qMoveFrom=-1;
+          this.qMoveTo=-1;
+      }
+      // type 2 == close => do nothing
+     
+      this.showQuestionMenu=false;
+    },
+    ContextMenuQuestionCell(e, cell) {
+      this.q_selected=-1;
       this.qMoveFrom=-1;
       this.qMoveTo=-1;
+      this.showArrowMenu=false;
+      // console.log('context for ', cell);
+      var vueObj = this;
+      this.map_array.forEach(function(obj, index) {
+        if (obj.move == cell) {
+           vueObj.showQuestionMenu=true;
+           vueObj.ContextCellSelected=cell;
+        }
+      });
+      this.menuQuestionX=(this.map_answers[cell].pozx+1)*this.cell_width;
+      if (this.menuQuestionX+this.menu_question_width-this.cell_width>=this.cell_width*(this.a_cols-1)) this.menuQuestionX=this.map_answers[cell].pozx*this.cell_width-this.menu_question_width;
+      
+      this.menuQuestionY=this.map_answers[cell].pozy*this.cell_height+this.cell_height/2-this.menu_question_array.length*this.menu_QuestionCell_height/2;
+
+      if (this.menuQuestionY<0) this.menuQuestionY=0;
+       if (this.menuQuestionY+this.menu_question_array.length*this.menu_QuestionCell_height>=this.cell_height*(this.a_rows-1)) this.menuQuestionY=this.cell_height*(this.a_rows-1)-this.menu_question_array.length*this.menu_QuestionCell_height+this.cell_height;
+
+
+
 
       e.preventDefault();
     },
@@ -811,25 +878,27 @@ export default {
       });
     },
     ContextMenuArrow(e,from, to){
-      this.showMenu=true;
+      this.showArrowMenu=true;
+      this.showQuestionMenu=false;
       this.menuArrowFrom=from;
       this.menuArrowTo=to;
 
-      this.menux=this.cell_width*(this.map_answers[from].pozx+this.map_answers[to].pozx)/2+this.cell_width/2-this.menu_width/2;
+      this.menuArrowX=this.cell_width*(this.map_answers[from].pozx+this.map_answers[to].pozx)/2+this.cell_width/2-this.menu_arrow_width/2;
 
-      if (this.menux<=0) this.menux=this.cell_width*2/3;
-      if (this.menux+this.menu_width>=this.cell_width*(this.a_cols-1)) this.menux=this.cell_width*(this.a_cols)-this.menu_width-this.cell_width*2/3;
+      if (this.menuArrowX<=0) this.menuArrowX=this.cell_width*2/3;
+      if (this.menuArrowX+this.menu_arrow_width>=this.cell_width*(this.a_cols-1)) this.menuArrowX=this.cell_width*(this.a_cols)-this.menu_arrow_width-this.cell_width*2/3;
 
       
 
-      this.menuy=this.cell_height*(this.map_answers[from].pozy+this.map_answers[to].pozy)/2+this.cell_height/2-this.menu_array.length*this.menu_cell_height/2;
-      if (this.menuy<=0) this.menuy=this.cell_height*2/3;
-      if (this.menuy+this.menu_array.length*this.menu_cell_height>=this.cell_height*(this.a_rows-1)) this.menuy=this.cell_height*(this.a_rows)-this.menu_array.length*this.menu_cell_height-this.cell_height*2/3;
+      this.menuArrowY=this.cell_height*(this.map_answers[from].pozy+this.map_answers[to].pozy)/2+this.cell_height/2-this.menu_arrow_array.length*this.menu_ArrowCell_height/2;
+      if (this.menuArrowY<=0) this.menuArrowY=this.cell_height*2/3;
+      if (this.menuArrowY+this.menu_arrow_array.length*this.menu_ArrowCell_height>=this.cell_height*(this.a_rows-1)) this.menuArrowY=this.cell_height*(this.a_rows)-this.menu_arrow_array.length*this.menu_ArrowCell_height-this.cell_height*2/3;
       
       e.preventDefault();
 
     },
-    ContextOprionsArrow(type){
+        
+    ContextOptionsArrow(type){
     var vueObj = this;
       this.map_links.forEach(function(link, index) {
         if (link.from == vueObj.menuArrowFrom && link.to == vueObj.menuArrowTo) {
@@ -840,10 +909,11 @@ export default {
           // type 5 == close => do nothing
         }
       });
-      this.showMenu=false;
+      this.showArrowMenu=false;
+      this.showQuestionMenu=false;
     },
     checkIfMenued(from, to){
-      if (this.menuArrowFrom==from && this.menuArrowTo==to && this.showMenu) return true;
+      if (this.menuArrowFrom==from && this.menuArrowTo==to && this.showArrowMenu) return true;
       return false
     },
     GenerareOutput(){
@@ -872,7 +942,7 @@ export default {
 <style>
 
 /* menu container */
-#ContextMenuCell{
+#ContextMenuArrowGroup, #ContextMenuQuestionGroup{
   fill:white;
   stroke: black;
 }
