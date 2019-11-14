@@ -10,6 +10,39 @@
       :key="'link_'+index"
     >{{link.from}} - {{link.to}}..{{link.x1}},{{link.y1}},{{link.x2}},{{link.y2}}..{{link.lbl}}</div>-->
      <!-- {{qMoveFrom}}..{{qMoveTo}} -->
+
+    <div class="modalCover" v-if="infomodal==true" ></div>
+    <div class="infoModal" v-if="infomodal==true">
+      
+      <div class="ModalHeader">
+        <div @click="infomodal=false" class='closeModal'>Close</div>
+      </div>
+      
+      <div class="ModalText">
+        Instructions: 
+        <ul>
+          <li>Use left click to select questions/start & stop elements / conditions and place them in the answer container or change their position if they are already placed.</li>
+          <li>Left click can also be used to link items together, by clicking the items in sequence –the first click will be the arrow origin and the second click the arrow destination.</li>
+          <li>Already placed elements in the answer container have a set of greyed out squares around them where other elements cannot be placed in order not to get an overcrowded schema </li>
+          <li>Use right click to delete elements </li>
+          <li>Right click on an arrow will bring up the options: </li>
+          <ul>
+            <li>Delete – deletes the arrow </li>
+            <li>True – makes the arrow green – will represent that the condition from the origin of the arrow was met </li>
+            <li>False – makes the arrow red– will represent that the condition from the origin of the arrow was not met </li>
+            <li>None – will reset the arrow color </li>
+            <li>Close – will close the list </li>
+            </ul>
+          <li>Use the Condition Builder to build simple or more complex conditions. </li>      
+        </ul> 
+        Once the condition was fully created, click the Done button – you will see the condition formula  
+        <ul>
+          <li>After a condition was created, you can either delete the condition or generate the condition object which will be automatically placed in the same container as the questions. </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='modalTrigger' @click="infomodal=true">Click here to read again the instructions</div>
     <!-- questions container -->
     <div>Questions, conditions and terminals:</div>
 
@@ -189,7 +222,7 @@
       </g>
     </svg>
   <!-- Generate Output-->
-  <div class="CondButton" @click="GenerareOutput()" >Generate</div>
+  <div class="CondButton GenerateBtn" @click="GenerareOutput()" >Generate</div>
   </div>
 </template>
 
@@ -200,11 +233,13 @@ export default {
   name: "SelectionGrid2",
   data() {
     return {
+      inputObj,
+      infomodal:false,
       QchartHeight: 0,
       QchartWidth: 0,
       AchartHeight: 0,
       AchartWidth: 0,
-      questions: ["START", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "STOP"],
+      questions: inputObj.questions,
       q_width: 50, //question width
       q_height: 50, //question height
       q_cols: 10, // number of questions per row
@@ -212,8 +247,8 @@ export default {
       map_array: [],
       map_answers: [],
       map_conditions: [],
-      operators: ["=", "<>", "*","<",">"],
-      answers: ["ans1", "ans2", "ans3","40"],
+      operators: inputObj.operators,
+      answers: inputObj.answers,
       cell_width: 50, //question width
       cell_height: 50, //question height
       a_cols: 15, //answers_cols
@@ -264,6 +299,14 @@ export default {
       if (!newVal){
         this.ContextCellSelected=-1;
       }
+    },
+    infomodal(value){
+      if (value) {
+        $('body').css('overflow','hidden');
+        }
+      else{
+        $('body').css('overflow','auto');
+        }
     }
   },
   methods: {
@@ -1082,5 +1125,61 @@ export default {
 .DropDownCondition{
   min-width: 15%;
       border-radius: 5px;
+}
+
+.GenerateBtn{
+  margin-top:10px;
+}
+/* more info modal design */
+.modalTrigger{
+  background-image: linear-gradient(180deg, #7ab3bb,#b0e0e6, #ddf2f5, #ddf2f5,#b0e0e6,#7ab3bb );
+  padding: 0px 5px;
+  display: inline;
+  border: 1px solid #789a9d;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 5px;
+}
+.infoModal{
+  border: 2px solid teal;
+  border-radius: 5px;
+  position: absolute;
+  width: 80%;
+  height: 70%;
+  margin-top: 15vh;
+  margin-left: 10vw;
+  background-color: white;
+}
+.closeModal{
+    border: 1px solid darkslategrey;
+    width: 50%;
+    max-width: 100px;
+    text-align: center;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: teal;
+    color: white;
+    position: absolute;
+    right: 15px;
+}
+.ModalText{
+  padding: 0px 5px;
+  overflow: auto;
+  position: absolute;
+  height: calc(100% - 40px);
+}
+.ModalHeader{
+  background-color: aliceblue;
+  height: 35px;
+  background-image: linear-gradient(to top,teal 0%, white 10%);
+}
+.modalCover{
+    background: black;
+    opacity: 0.75;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
 }
 </style>

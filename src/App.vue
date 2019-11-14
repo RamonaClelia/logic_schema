@@ -1,29 +1,19 @@
 <template>
   <div id="app">
-    <SelectionGrid2 msg="Welcome to Your Vue.js App"/>
-    <!-- <SelectionGrid msg="Welcome to Your Vue.js App"/> -->
-     <!-- <Draggable msg="Welcome to Your Vue.js App"/> -->
+    <SelectionGrid2 msg="Welcome to Your Vue.js App"/>    
   </div>
 </template>
 
 <script>
 import SVG from "svg.js";
-import '@svgdotjs/svg.draggable.js'
-
 import SelectionGrid2 from './components/SelectionGrid2.vue'
-import SelectionGrid from './components/SelectionGrid.vue'
-import Draggable from './components/Draggable.vue'
 
 export default {
   name: 'app',
   components: {
-    SelectionGrid2,
-    SelectionGrid,
-    Draggable
+    SelectionGrid2,    
   },
-   watch: {},
-   mounted() {},
-    methods: {}
+  
 }
 </script>
 
