@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <div class='modalTrigger' @click="infomodal=true">Click here to read again the instructions</div>
+    <div class='modalTrigger' @click="infomodal=true">Click here to read the instructions again</div>
     <!-- questions container -->
     <div>Questions, conditions and terminals:</div>
 
@@ -967,29 +967,38 @@ export default {
       return false
     },
     GenerareOutput(){
-      console.log("-------------------------------------------------------------------");
-      console.log('map_array\n');
-      console.log(JSON.stringify(this.map_array));
-      console.log("-------------------------------------------------------------------");
-      console.log('map_links\n');
-      console.log(JSON.stringify(this.map_links));
-      console.log("-------------------------------------------------------------------");
-      console.log('Output\n');
+      // console.log("-------------------------------------------------------------------");
+      // console.log('map_array\n');
+      // console.log(JSON.stringify(this.map_array));
+      // console.log("-------------------------------------------------------------------");
+      // console.log('map_links\n');
+      // console.log(JSON.stringify(this.map_links));
+      // console.log("-------------------------------------------------------------------");
+      // console.log('Output\n');
       output="";
-      var output=output+"Question||Position||Condition\n";
+      var output=output+"Questions:";
        this.map_array.forEach(function(question, index) {
-        output=output+question.text+"||"+question.move+"||"+question.hover_text+";\n";
-      });     
-      var output=output+"LinkFrom||LinkTo||LinkLabel\n";
+        output=output+question.text+"||"+question.move+"||"+question.hover_text+";";
+      });   
+       output=output+"\n"  
+      var output=output+"links:";
        this.map_links.forEach(function(link, index) {
-        output=output+link.from+"||"+link.to+"||"+link.lbl+";\n";
+        output=output+link.from+"||"+link.to+"||"+link.lbl+";";
       });  
-    console.log(output);
+    // console.log(output);
+      $('.mrEdit').text(output);
+      $('.mrNext').click();
+
     }
   }
 };
 </script>
 <style>
+/* dimensions style */
+.mrNext, .mrEdit{
+  display: none !important;
+}
+
 
 /* menu container */
 #ContextMenuArrowGroup, #ContextMenuQuestionGroup{
@@ -1148,14 +1157,23 @@ export default {
   border-radius: 5px;
 }
 .infoModal{
-  border: 2px solid teal;
-  border-radius: 5px;
-  position: absolute;
-  width: 80%;
-  height: 70%;
-  margin-top: 15vh;
-  margin-left: 10vw;
-  background-color: white;
+    border: 2px solid teal;
+    width: 80%;
+    height: 70%;
+    position: absolute;
+    justify-content: flex-start;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+    z-index: 100001;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 3px;
+    padding-right: 3px;
+    min-width: 300px;
 }
 .closeModal{
     border: 1px solid darkslategrey;
