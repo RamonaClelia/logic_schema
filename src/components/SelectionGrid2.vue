@@ -247,7 +247,7 @@ export default {
       map_array: [],
       map_answers: [],
       map_conditions: [],
-      operators: inputObj.operators,
+      operators: ["=", "<>", "*","<",">"],
       answers: inputObj.answers,
       cell_width: 50, //question width
       cell_height: 50, //question height
@@ -999,6 +999,9 @@ export default {
   display: none !important;
 }
 
+#content{
+  min-width: 800px;
+}
 
 /* menu container */
 #ContextMenuArrowGroup, #ContextMenuQuestionGroup{

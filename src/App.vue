@@ -26,7 +26,6 @@ export default {
   color: #2c3e50;
   font-family: cursive;
   user-select: none;
-  position: relative;
-    left: 25px;
+  padding-left: 25px;
 }
 </style>
