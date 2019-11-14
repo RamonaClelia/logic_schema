@@ -371,7 +371,14 @@ export default {
       this.qMoveFrom=-1;
       // console.log('BlockClick for ',qpoz);
       if (!this.map_array[qpoz].used) {
-        this.q_selected = qpoz;
+
+        if(this.q_selected!=qpoz){
+          // console.log('click on a different question');
+          this.q_selected = qpoz;
+        }else{
+          // console.log('click on the selected question');
+          this.q_selected=-1;
+        };
       } else {
         // console.log('question used');
       }
