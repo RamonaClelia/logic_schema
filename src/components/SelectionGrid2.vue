@@ -568,7 +568,14 @@ export default {
           this.CB_visible = true;
           break;
         case 4: //case GENERATE
+
+          //create new condition
           this.map_conditions.push(this.tempCond);
+
+          //add condition in first dropdown array
+          this.questions.push("C" + this.map_conditions.length);
+
+          //save cond info
           this.AddBlock(
             "C" + this.map_conditions.length,
             this.MakeMePretty(
@@ -577,22 +584,34 @@ export default {
           );
         case 5: //case GENERATE and DELETE
           this.tempCond = [];
-          this.CD1 = "";
-          this.CD2 = "";
-          this.CD3 = "";
           this.CB_visible = false;
           break;
         default:
           console.log("error in type cond_click");
       }
+          //empty dropdowns
+          this.CD1 = "";
+          this.CD2 = "";
+          this.CD3 = "";
     },
     MakeMePretty(cond) {
       var cond_pretty = "";
+      var vueObj=this;
+      
       // console.log(cond.length);
       cond.forEach(function(condition, index) {
+        // console.log(condition.CD1,condition.CD3);
+        var textCD1=condition.CD1;
+        
+        vueObj.map_array.find(unit => {
+          if (unit.text == condition.CD1 && unit.hover_text.length>0) {
+            textCD1=unit.hover_text;
+          }
+      });
+      
         cond_pretty =
           cond_pretty + "("+
-          condition.CD1 +
+          textCD1 +
           " " +
           condition.CD2 +
           " " +
@@ -604,7 +623,7 @@ export default {
       // for (var i=0; i<cond.length; i++){
       //   cond_pretty=cond_pretty+cond.CD1+" "+cond.CD2+" "+cond.CD3+ " "+cond.Next+";"
       // }
-      return cond_pretty;
+      return cond_pretty.replace(/\s\s+/g, ' ').replace(/\)\s+\)/g,"))");
     },
     ContextOptionsQuestion(type){
           // console.log('ContextOptionsQuestion');
