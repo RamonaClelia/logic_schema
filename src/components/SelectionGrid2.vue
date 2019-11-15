@@ -242,7 +242,7 @@ export default {
       questions: inputObj.questions,
       q_width: 50, //question width
       q_height: 50, //question height
-      q_cols: 10, // number of questions per row
+      q_cols: 15, // number of questions per row
       q_rows: -1, //determined based on cols and count
       map_array: [],
       map_answers: [],
