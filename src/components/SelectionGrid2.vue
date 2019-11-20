@@ -72,36 +72,54 @@
     <div>Conditions builder:</div>
     <div id="Conditions"  v-bind:style="{ width: QchartWidth+'px' }">
     <div
-     
       id="ConditionsContainer"
     >
-      <select class="DropDownCondition" id="DropDownCondition1" v-model="CD1">
+    <div class="CondLvl1">
+      <div class="CondLvl2">Questions & Terminals</div>
+       <div class="CondLvl2">
+    <select class="DropDownCondition" id="DropDownCondition1" v-model="CD1">
         <option
           v-for="(question,questionIndex) in questions"
           :key="questionIndex"
           :value="question"
         >{{ question }}</option>
       </select>
-      <select class="DropDownCondition" id="DropDownCondition1" v-model="CD2">
+      <div class="CondButton" @click="CondClick(1)" >ADD</div></div>
+    </div>
+        <div class="CondLvl1">
+          <div class="CondLvl2">Operators & Punctuators</div>
+           <div class="CondLvl2">
+         <select class="DropDownCondition" id="DropDownCondition1" v-model="CD2">
         <option
           v-for="(operator,operatorIndex) in operators"
           :key="operatorIndex"
           :value="operator"
         >{{ operator }}</option>
       </select>
-      <select class="DropDownCondition" id="DropDownCondition1" v-model="CD3">
+      <div class="CondButton" @click="CondClick(2)">ADD</div></div>
+    </div>
+        <div class="CondLvl1">
+          <div class="CondLvl2">Answer Values</div>
+           <div class="CondLvl2">
+         <select class="DropDownCondition" id="DropDownCondition1" v-model="CD3">
         <option
           v-for="(answer,answerIndex) in answers"
           :key="answerIndex"
           :value="answer"
         >{{ answer }}</option>
       </select>
-
-      <div class="CondButton" @click="CondClick(1)" v-if="!CB_visible">AND</div>
-      <div class="CondButton" @click="CondClick(2)" v-if="!CB_visible">OR</div>
-      <div class="CondButton" @click="CondClick(3)" v-if="!CB_visible">DONE</div>
-      <div class="CondButton" @click="CondClick(4)" v-if="CB_visible">GENERATE</div>
-      <div class="CondButton" @click="CondClick(5)" v-if="CB_visible">DELETE</div>
+      <div class="CondButton" @click="CondClick(3)" >ADD</div></div>
+    </div>
+        <div class="CondLvl1">
+           <div class="CondLvl2">
+       <div class="CondButton" @click="CondClick(4)" v-bind:class="{ DisableButton: MakeMePretty(tempCond).length==0}" >DONE</div>
+      <div class="CondButton" @click="CondClick(5)" v-bind:class="{ DisableButton: MakeMePretty(tempCond).length==0}">DELETE</div></div>
+    </div>
+    
+   
+   
+      
+     
     </div>
 
     <!-- temporary conditions display container -->
@@ -222,7 +240,7 @@
       </g>
     </svg>
   <!-- Generate Output-->
-  <div class="CondButton GenerateBtn" @click="GenerareOutput()" >Generate</div>
+  <div class="CondButton GenerateBtn" @click="GenerareOutput()" >Submit</div>
   </div>
 </template>
 
@@ -247,7 +265,7 @@ export default {
       map_array: [],
       map_answers: [],
       map_conditions: [],
-      operators: ["=", "<>", "*","<",">"],
+      operators: ["=", "<>", "*","<",">","(",")","AND","OR"],
       answers: inputObj.answers,
       cell_width: 50, //question width
       cell_height: 50, //question height
@@ -539,41 +557,25 @@ export default {
     },
     CondClick(type) {
       switch (type) {
-        case 1: //case AND
-          this.tempCond.push({
-            CD1: this.CD1,
-            CD2: this.CD2,
-            CD3: this.CD3,
-            Next: "AND",
-            id: this.tempCond.length - 1
-          });
+        case 1: //case CD1
+          this.tempCond.push(this.CD1);
+          this.CD1 = "";
           break;
-        case 2: //case OR
-          this.tempCond.push({
-            CD1: this.CD1,
-            CD2: this.CD2,
-            CD3: this.CD3,
-            Next: "OR",
-            id: this.tempCond.length - 1
-          });
+        case 2: //case CD2
+          this.tempCond.push(this.CD2);
+          this.CD2 = "";
           break;
-        case 3: //case DONE
-          this.tempCond.push({
-            CD1: this.CD1,
-            CD2: this.CD2,
-            CD3: this.CD3,
-            Next: "",
-            id: this.tempCond.length - 1
-          });
-          this.CB_visible = true;
+        case 3: //case CD3
+          this.tempCond.push(this.CD3);
+          this.CD3 = "";
           break;
-        case 4: //case GENERATE
-
+        case 4: //case DONE
+        if(this.MakeMePretty(this.tempCond).length>0){
           //create new condition
           this.map_conditions.push(this.tempCond);
 
           //add condition in first dropdown array
-          this.questions.push("C" + this.map_conditions.length);
+          // this.questions.push("C" + this.map_conditions.length);
 
           //save cond info
           this.AddBlock(
@@ -582,48 +584,27 @@ export default {
               this.map_conditions[this.map_conditions.length - 1]
             )
           );
-        case 5: //case GENERATE and DELETE
+        }else{
+          //no valid condition to be pushed
+          // console.log('no condition to be pushed');
+        }
+        
+        case 5: //case DELETE
           this.tempCond = [];
-          this.CB_visible = false;
           break;
         default:
           console.log("error in type cond_click");
       }
-          //empty dropdowns
-          this.CD1 = "";
-          this.CD2 = "";
-          this.CD3 = "";
     },
     MakeMePretty(cond) {
-      var cond_pretty = "";
-      var vueObj=this;
-      
-      // console.log(cond.length);
+      var condition_final="";
+
       cond.forEach(function(condition, index) {
-        // console.log(condition.CD1,condition.CD3);
-        var textCD1=condition.CD1;
-        
-        vueObj.map_array.find(unit => {
-          if (unit.text == condition.CD1 && unit.hover_text.length>0) {
-            textCD1=unit.hover_text;
-          }
+        condition_final=condition_final+condition;
       });
-      
-        cond_pretty =
-          cond_pretty + "("+
-          textCD1 +
-          " " +
-          condition.CD2 +
-          " " +
-          condition.CD3 +
-          ") " +
-          condition.Next +
-          " ";
-      });
-      // for (var i=0; i<cond.length; i++){
-      //   cond_pretty=cond_pretty+cond.CD1+" "+cond.CD2+" "+cond.CD3+ " "+cond.Next+";"
-      // }
-      return cond_pretty.replace(/\s\s+/g, ' ').replace(/\)\s+\)/g,"))");
+
+      return condition_final;
+
     },
     ContextOptionsQuestion(type){
           // console.log('ContextOptionsQuestion');
@@ -999,12 +980,32 @@ export default {
        this.map_array.forEach(function(question, index) {
         output=output+question.text+"||"+question.move+"||"+question.hover_text+";";
       });   
-       output=output+"\n"  
+       output=output+"[##]"  
       var output=output+"links:";
        this.map_links.forEach(function(link, index) {
         output=output+link.from+"||"+link.to+"||"+link.lbl+";";
       });  
-    // console.log(output);
+      // console.log(output);
+      // console.log(this.inputObj.questions.length);
+
+      // get assigned question from initial question array.
+      var assignedQuestions=0;
+      var notAssignedQuestions=0;
+      var vueObj=this
+      this.map_array.forEach(function(cell, index) {
+        //check if question is part of initial question string
+        if (cell.text, vueObj.inputObj.questions.indexOf(cell.text) != -1) {
+          //check if it was assigned to an answer cell
+          if (cell.move != -1){
+            assignedQuestions++;
+          }else{
+            notAssignedQuestions++;
+          }
+        }
+      });      
+      output=assignedQuestions+"#"+notAssignedQuestions+"#"+this.inputObj.questions.length+"[##]"+output;
+      //save and submit
+      // console.log(output);
       $('.mrEdit').text(output);
       $('.mrNext').click();
 
@@ -1160,13 +1161,32 @@ export default {
   /* border: 1px solid black; */
   margin-top: 5px;
 }
+.DisableButton{
+  background-image: linear-gradient(180deg, gray,lightgray, white, white,lightgray,gray );
+  border: 1px solid gray;
+}
 .DropDownCondition{
   min-width: 15%;
       border-radius: 5px;
 }
+.CondLvl1{
+  
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.CondLvl2{
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  justify-content: space-evenly;
 
+   
+}
 .GenerateBtn{
   margin-top:10px;
+      height: 30px;
+    font-weight: bolder;
 }
 /* more info modal design */
 .modalTrigger{
