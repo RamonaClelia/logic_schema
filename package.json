@@ -9,7 +9,7 @@
   "dependencies": {
     "@svgdotjs/svg.draggable.js": "^3.0.2",
     "core-js": "^2.6.5",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "svg.js": "^2.7.1",
     "vue": "^2.6.10"
   },
